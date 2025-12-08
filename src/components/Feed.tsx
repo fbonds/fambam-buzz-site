@@ -5,6 +5,7 @@ import { DEV_MODE, DEV_USER_ID, DEV_USER_NAME } from '../lib/dev-auth';
 import PostComposer from './PostComposer';
 import Reactions from './Reactions';
 import Comments from './Comments';
+import ProfilePage from './ProfilePage';
 import type { Post } from '../lib/supabase';
 
 export default function Feed() {
@@ -137,7 +138,6 @@ export default function Feed() {
 
   // Show profile page if viewing someone's profile
   if (viewingProfile) {
-    const ProfilePage = require('./ProfilePage').default;
     return (
       <>
         <nav slot="nav" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
