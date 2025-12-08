@@ -17,6 +17,7 @@ export default function Feed() {
   const [newPostsCount, setNewPostsCount] = useState(0);
   const [newPosts, setNewPosts] = useState<Post[]>([]);
   const [viewingProfile, setViewingProfile] = useState<string | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -228,15 +229,72 @@ export default function Feed() {
             post={post} 
             currentUserId={user?.id || DEV_USER_ID}
             onProfileClick={(userId) => setViewingProfile(userId)}
+            onImageClick={(url) => setLightboxImage(url)}
           />
         ))}
       </div>
+
+      {/* Image Lightbox */}
+      {lightboxImage && (
+        <div
+          onClick={() => setLightboxImage(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            cursor: 'pointer',
+            padding: '20px'
+          }}
+        >
+          <img
+            src={lightboxImage}
+            alt="Full size"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              objectFit: 'contain',
+              borderRadius: '8px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+            }}
+          />
+          <button
+            onClick={() => setLightboxImage(null)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              background: 'rgba(255, 255, 255, 0.9)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              fontSize: '24px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 'bold',
+              color: '#333'
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
     </>
   );
 }
 
 // PostCard component
-function PostCard({ post, currentUserId, onProfileClick }: { post: any; currentUserId: string; onProfileClick?: (userId: string) => void }) {
+function PostCard({ post, currentUserId, onProfileClick, onImageClick }: { post: any; currentUserId: string; onProfileClick?: (userId: string) => void; onImageClick?: (url: string) => void }) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -369,12 +427,14 @@ function PostCard({ post, currentUserId, onProfileClick }: { post: any; currentU
               key={i}
               src={url} 
               alt="Post media" 
+              onClick={() => onImageClick?.(url)}
               style={{ 
                 width: '100%',
                 borderRadius: '8px',
                 objectFit: 'cover',
                 maxHeight: '300px',
-                minHeight: '150px'
+                minHeight: '150px',
+                cursor: 'pointer'
               }}
             />
           ))}
