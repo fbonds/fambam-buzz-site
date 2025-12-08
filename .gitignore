@@ -1,5 +1,4 @@
-# build output
-dist/
+# build output - files are now built to root for Porkbun
 # generated types
 .astro/
 

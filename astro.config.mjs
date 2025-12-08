@@ -8,5 +8,6 @@ export default defineConfig({
   integrations: [react()],
   build: {
     format: 'file'
-  }
+  },
+  outDir: '.'  // Build directly to root for Porkbun
 });
