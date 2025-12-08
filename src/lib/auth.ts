@@ -1,6 +1,19 @@
 import { supabase } from './supabase';
+import { DEV_MODE, getDevUser } from './dev-auth';
 
 export async function getSession(cookies: any) {
+  // Dev mode bypass
+  if (DEV_MODE) {
+    const devUser = getDevUser();
+    if (devUser) {
+      return {
+        user: devUser,
+        access_token: 'dev-token',
+        refresh_token: 'dev-token'
+      };
+    }
+  }
+
   const accessToken = cookies.get('sb-access-token')?.value;
   const refreshToken = cookies.get('sb-refresh-token')?.value;
 
@@ -21,6 +34,11 @@ export async function getSession(cookies: any) {
 }
 
 export async function getUser(cookies: any) {
+  // Dev mode bypass
+  if (DEV_MODE) {
+    return getDevUser();
+  }
+
   const session = await getSession(cookies);
   return session?.user ?? null;
 }

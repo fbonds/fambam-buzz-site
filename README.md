@@ -2,6 +2,18 @@
 
 A private family social network where family members can share updates, photos, and stay connected.
 
+## 🚀 Quick Start (No Setup!)
+
+**Dev mode is enabled** - test the app right now without database setup:
+
+```bash
+npm run dev
+```
+
+Visit **http://localhost:4321** - you'll be auto-logged in as Fletcher!
+
+See `START_HERE.md` for more details or `SUPABASE_SETUP.md` to enable full functionality.
+
 ## Features
 
 - **Personal Profiles**: Each family member has their own profile with avatar and bio
@@ -106,18 +118,16 @@ Visit http://localhost:4321
 
 ## Deployment
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
+See [PORKBUN_DEPLOYMENT.md](./PORKBUN_DEPLOYMENT.md) for detailed deployment instructions to Porkbun Static Hosting.
 
-**Recommended:** Deploy to Vercel, Netlify, or Railway (all free tiers support Node.js):
+**Quick steps:**
 
 ```bash
-# Vercel (easiest)
-npm install -g vercel
-vercel
+# Build for production
+npm run build
 
-# Netlify
-npm install -g netlify-cli
-netlify deploy --prod
+# Upload dist/ contents to Porkbun via FTP/SFTP
+# Set Rewrite URL Path to: /index.html
 ```
 
 ## Security Notes
@@ -130,20 +140,21 @@ netlify deploy --prod
 
 ## Cost Breakdown
 
-**Free Tier:**
-- Supabase: 500MB database + 1GB storage + 5GB bandwidth
-- Vercel/Netlify: Unlimited hosting
-- **Total: $0/month**
+**Monthly costs:**
+- Porkbun hosting: $4/month (your existing hosting)
+- Supabase: $0 (free tier - 500MB DB + 1GB storage)
+- **Total: $4/month**
 
 **When You Outgrow Free Tier:**
 - Supabase Pro: $25/month (8GB database + 100GB storage)
+- **Total: $29/month**
 
 ## Support & Documentation
 
 - [Supabase Documentation](https://supabase.com/docs)
 - [Astro Documentation](https://docs.astro.build)
 - [Setup Guide](./SUPABASE_SETUP.md)
-- [Deployment Guide](./DEPLOYMENT.md)
+- [Porkbun Deployment Guide](./PORKBUN_DEPLOYMENT.md)
 
 ## License
 

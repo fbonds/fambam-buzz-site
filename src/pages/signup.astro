@@ -1,43 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getUser } from '../lib/auth';
-
-const user = await getUser(Astro.cookies);
-
-if (user) {
-  return Astro.redirect('/');
-}
-
-const error = Astro.url.searchParams.get('error');
+import SignupForm from '../components/SignupForm';
 ---
 
 <BaseLayout title="Sign Up">
   <div class="card" style="max-width: 400px; margin: 60px auto;">
     <h1 style="margin-bottom: 20px; text-align: center;">Join FamBam</h1>
     
-    {error && <div class="error">{error}</div>}
-    
-    <form method="post" action="/api/auth/signup" style="display: flex; flex-direction: column; gap: 15px;">
-      <div>
-        <label for="display_name" style="display: block; margin-bottom: 5px; font-weight: 500;">Display Name</label>
-        <input type="text" id="display_name" name="display_name" required />
-      </div>
-      
-      <div>
-        <label for="email" style="display: block; margin-bottom: 5px; font-weight: 500;">Email</label>
-        <input type="email" id="email" name="email" required />
-      </div>
-      
-      <div>
-        <label for="password" style="display: block; margin-bottom: 5px; font-weight: 500;">Password</label>
-        <input type="password" id="password" name="password" required minlength="6" />
-      </div>
-      
-      <button type="submit" class="btn">Create Account</button>
-    </form>
-    
-    <p style="text-align: center; margin-top: 20px; color: #666;">
-      Already have an account? <a href="/login" style="color: #4A90E2;">Sign in</a>
-    </p>
+    <SignupForm client:load />
   </div>
 </BaseLayout>

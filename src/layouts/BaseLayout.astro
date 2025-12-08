@@ -1,4 +1,6 @@
 ---
+import { DEV_MODE } from '../lib/dev-auth';
+
 interface Props {
   title: string;
 }
@@ -152,7 +154,7 @@ const { title } = Astro.props;
 <body>
   <header class="header">
     <div class="header-content">
-      <a href="/" class="logo">🐝 FamBam Buzz</a>
+      <a href="/" class="logo">🐝 FamBam Buzz {DEV_MODE && <span style="font-size: 12px; color: #ffc107;">DEV</span>}</a>
       <nav class="nav">
         <slot name="nav" />
       </nav>
