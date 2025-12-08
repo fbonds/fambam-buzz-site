@@ -171,32 +171,47 @@ function PostCard({ post, currentUserId }: { post: any; currentUserId: string })
 
   return (
     <div className="card" style={{ marginBottom: '15px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1, minWidth: 0 }}>
           {post.profile?.avatar_url ? (
             <img 
               src={post.profile.avatar_url} 
               alt={post.profile.display_name} 
-              style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
+              style={{ 
+                width: '40px', 
+                height: '40px', 
+                borderRadius: '50%', 
+                objectFit: 'cover',
+                flexShrink: 0
+              }}
             />
           ) : (
             <div style={{
-              width: '48px',
-              height: '48px',
+              width: '40px',
+              height: '40px',
               borderRadius: '50%',
               background: '#4A90E2',
               color: 'white',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '20px',
-              fontWeight: 'bold'
+              fontSize: '18px',
+              fontWeight: 'bold',
+              flexShrink: 0
             }}>
               {post.profile?.display_name?.[0]?.toUpperCase() || '?'}
             </div>
           )}
-          <div>
-            <div style={{ fontWeight: 600, color: '#333' }}>{post.profile?.display_name || 'Unknown'}</div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ 
+              fontWeight: 600, 
+              color: '#333',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
+              {post.profile?.display_name || 'Unknown'}
+            </div>
             <div style={{ fontSize: '13px', color: '#999' }}>{formatDate(post.created_at)}</div>
           </div>
         </div>
@@ -207,13 +222,14 @@ function PostCard({ post, currentUserId }: { post: any; currentUserId: string })
             style={{
               background: 'none',
               border: 'none',
-              fontSize: '32px',
+              fontSize: '28px',
               color: '#999',
               cursor: 'pointer',
               lineHeight: 1,
               padding: 0,
-              width: '32px',
-              height: '32px'
+              width: '28px',
+              height: '28px',
+              flexShrink: 0
             }}
             title="Delete post"
           >
@@ -222,7 +238,13 @@ function PostCard({ post, currentUserId }: { post: any; currentUserId: string })
         )}
       </div>
       
-      <div style={{ fontSize: '15px', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+      <div style={{ 
+        fontSize: '15px', 
+        lineHeight: 1.6, 
+        whiteSpace: 'pre-wrap', 
+        wordWrap: 'break-word',
+        overflowWrap: 'break-word'
+      }}>
         {post.content}
       </div>
       
@@ -230,7 +252,7 @@ function PostCard({ post, currentUserId }: { post: any; currentUserId: string })
         <div style={{ 
           marginTop: '15px',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
           gap: '10px'
         }}>
           {post.media_urls.map((url: string, i: number) => (
@@ -242,7 +264,8 @@ function PostCard({ post, currentUserId }: { post: any; currentUserId: string })
                 width: '100%',
                 borderRadius: '8px',
                 objectFit: 'cover',
-                maxHeight: '400px'
+                maxHeight: '300px',
+                minHeight: '150px'
               }}
             />
           ))}

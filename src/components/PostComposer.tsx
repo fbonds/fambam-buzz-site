@@ -126,23 +126,25 @@ export default function PostComposer({ userId, userAvatar }: PostComposerProps) 
       <div style={{ display: 'flex', gap: '12px', alignItems: 'start' }}>
         {userAvatar ? (
           <img src={userAvatar} alt="You" style={{
-            width: '48px',
-            height: '48px',
+            width: '40px',
+            height: '40px',
             borderRadius: '50%',
-            objectFit: 'cover'
+            objectFit: 'cover',
+            flexShrink: 0
           }} />
         ) : (
           <div style={{
-            width: '48px',
-            height: '48px',
+            width: '40px',
+            height: '40px',
             borderRadius: '50%',
             background: '#4A90E2',
             color: 'white',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '20px',
-            fontWeight: 'bold'
+            fontSize: '18px',
+            fontWeight: 'bold',
+            flexShrink: 0
           }}>
             ?
           </div>
@@ -153,7 +155,12 @@ export default function PostComposer({ userId, userAvatar }: PostComposerProps) 
           onChange={(e) => setContent(e.target.value)}
           placeholder="What's on your mind?"
           rows={3}
-          style={{ flex: 1, resize: 'vertical', minHeight: '80px' }}
+          style={{ 
+            flex: 1, 
+            resize: 'vertical', 
+            minHeight: '80px',
+            fontSize: '16px'
+          }}
           disabled={posting}
         />
       </div>
