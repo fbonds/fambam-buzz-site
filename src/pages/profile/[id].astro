@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getUser } from '../../lib/auth';
+import { supabase } from '../../lib/supabase';
+import PostCard from '../../components/PostCard.astro';
+import type { Post } from '../../lib/supabase';
+
+const user = await getUser(Astro.cookies);
+
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+const { id } = Astro.params;
+
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('*')
+  .eq('id', id)
+  .single();
+
+if (!profile) {
+  return Astro.redirect('/');
+}
+
+const { data: posts } = await supabase
+  .from('posts')
+  .select(`
+    *,
+    profile:profiles(*)
+  `)
+  .eq('user_id', id)
+  .order('created_at', { ascending: false })
+  .limit(50);
+
+const isOwnProfile = user.id === id;
+---
+
+<BaseLayout title={profile.display_name}>
+  <nav slot="nav">
+    <a href="/">Feed</a>
+    {isOwnProfile && <a href="/profile/edit">Edit Profile</a>}
+    <form method="post" action="/api/auth/signout" style="display: inline;">
+      <button type="submit" class="btn btn-secondary">Sign Out</button>
+    </form>
+  </nav>
+
+  <div class="card" style="margin-bottom: 30px;">
+    <div style="display: flex; gap: 20px; align-items: start;">
+      {profile.avatar_url ? (
+        <img src={profile.avatar_url} alt={profile.display_name} style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" />
+      ) : (
+        <div style="width: 100px; height: 100px; border-radius: 50%; background: #4A90E2; color: white; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold;">
+          {profile.display_name[0].toUpperCase()}
+        </div>
+      )}
+      
+      <div style="flex: 1;">
+        <h1 style="margin-bottom: 10px;">{profile.display_name}</h1>
+        {profile.bio && <p style="color: #666; line-height: 1.6;">{profile.bio}</p>}
+        <p style="color: #999; font-size: 14px; margin-top: 10px;">
+          Joined {new Date(profile.created_at).toLocaleDateString()}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h2 style="margin-bottom: 20px;">Posts</h2>
+  
+  {posts && posts.length === 0 && (
+    <div class="card" style="text-align: center; padding: 40px;">
+      <p style="color: #999;">No posts yet</p>
+    </div>
+  )}
+  
+  {posts && posts.map((post) => (
+    <PostCard post={post as Post & { profile: any }} currentUserId={user.id} />
+  ))}
+</BaseLayout>

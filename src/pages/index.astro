@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getUser } from '../lib/auth';
+import { supabase } from '../lib/supabase';
+import PostComposer from '../components/PostComposer';
+import PostCard from '../components/PostCard.astro';
+import type { Post } from '../lib/supabase';
+
+const user = await getUser(Astro.cookies);
+
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+const { data: posts, error } = await supabase
+  .from('posts')
+  .select(`
+    *,
+    profile:profiles(*)
+  `)
+  .order('created_at', { ascending: false })
+  .limit(50);
+
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('*')
+  .eq('id', user.id)
+  .single();
+---
+
+<BaseLayout title="Feed">
+  <nav slot="nav">
+    <a href={`/profile/${user.id}`}>My Profile</a>
+    <a href="/admin">Admin</a>
+    <form method="post" action="/api/auth/signout" style="display: inline;">
+      <button type="submit" class="btn btn-secondary">Sign Out</button>
+    </form>
+  </nav>
+
+  <div style="margin-bottom: 30px;">
+    <h1 style="margin-bottom: 20px;">Family Feed</h1>
+    
+    <div class="card">
+      <PostComposer 
+        client:load 
+        userId={user.id}
+        userAvatar={profile?.avatar_url}
+      />
+    </div>
+  </div>
+
+  <div>
+    {error && <div class="error">Failed to load posts</div>}
+    
+    {posts && posts.length === 0 && (
+      <div class="card" style="text-align: center; padding: 40px;">
+        <p style="color: #999;">No posts yet. Be the first to share something!</p>
+      </div>
+    )}
+    
+    {posts && posts.map((post) => (
+      <PostCard post={post as Post & { profile: any }} currentUserId={user.id} />
+    ))}
+  </div>
+</BaseLayout>

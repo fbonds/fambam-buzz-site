@@ -1,0 +1,20 @@
+{
+  "name": "absent-antimatter",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.5.1",
+    "@astrojs/react": "^4.4.2",
+    "@supabase/supabase-js": "^2.86.2",
+    "astro": "^5.16.4",
+    "browser-image-compression": "^2.0.2",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1"
+  }
+}

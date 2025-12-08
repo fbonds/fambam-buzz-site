@@ -1,0 +1,146 @@
+---
+import type { Post } from '../lib/supabase';
+
+interface Props {
+  post: Post & { profile?: any };
+  currentUserId: string;
+}
+
+const { post, currentUserId } = Astro.props;
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(hours / 24);
+  
+  if (days > 0) return `${days}d ago`;
+  if (hours > 0) return `${hours}h ago`;
+  return 'Just now';
+};
+
+const isOwner = post.user_id === currentUserId;
+---
+
+<div class="card post-card">
+  <div class="post-header">
+    <div class="post-author">
+      {post.profile?.avatar_url ? (
+        <img src={post.profile.avatar_url} alt={post.profile.display_name} class="avatar" />
+      ) : (
+        <div class="avatar-placeholder">
+          {post.profile?.display_name?.[0]?.toUpperCase() || '?'}
+        </div>
+      )}
+      <div>
+        <div class="author-name">{post.profile?.display_name || 'Unknown'}</div>
+        <div class="post-time">{formatDate(post.created_at)}</div>
+      </div>
+    </div>
+    
+    {isOwner && (
+      <form method="post" action={`/api/posts/${post.id}/delete`}>
+        <button type="submit" class="delete-btn" title="Delete post">×</button>
+      </form>
+    )}
+  </div>
+  
+  <div class="post-content">
+    {post.content}
+  </div>
+  
+  {post.media_urls && post.media_urls.length > 0 && (
+    <div class="post-media">
+      {post.media_urls.map((url) => (
+        <img src={url} alt="Post media" class="media-image" />
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+  .post-card {
+    margin-bottom: 15px;
+  }
+  
+  .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 15px;
+  }
+  
+  .post-author {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #4A90E2;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .author-name {
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .post-time {
+    font-size: 13px;
+    color: #999;
+  }
+  
+  .delete-btn {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #999;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+  }
+  
+  .delete-btn:hover {
+    color: #c33;
+  }
+  
+  .post-content {
+    font-size: 15px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  
+  .post-media {
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  
+  .media-image {
+    width: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+    max-height: 400px;
+  }
+</style>
