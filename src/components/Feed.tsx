@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase';
 import { getCurrentUser } from '../lib/client-auth';
 import { DEV_MODE, DEV_USER_ID, DEV_USER_NAME } from '../lib/dev-auth';
 import PostComposer from './PostComposer';
+import Reactions from './Reactions';
+import Comments from './Comments';
 import type { Post } from '../lib/supabase';
 
 export default function Feed() {
@@ -11,9 +13,43 @@ export default function Feed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [newPostsCount, setNewPostsCount] = useState(0);
+  const [newPosts, setNewPosts] = useState<Post[]>([]);
+  const [viewingProfile, setViewingProfile] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
+  }, []);
+
+  // Subscribe to realtime updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('posts-channel')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'posts' },
+        async (payload) => {
+          // Fetch the full post with profile data
+          const { data } = await supabase
+            .from('posts')
+            .select(`
+              *,
+              profile:profiles(*)
+            `)
+            .eq('id', payload.new.id)
+            .single();
+
+          if (data) {
+            setNewPosts((prev) => [data, ...prev]);
+            setNewPostsCount((prev) => prev + 1);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   async function loadData() {
@@ -70,6 +106,19 @@ export default function Feed() {
     window.location.href = '/login.html';
   };
 
+  const handleLoadNewPosts = () => {
+    setPosts([...newPosts, ...posts]);
+    setNewPosts([]);
+    setNewPostsCount(0);
+  };
+
+  const handleRefresh = async () => {
+    setLoading(true);
+    await loadData();
+    setNewPosts([]);
+    setNewPostsCount(0);
+  };
+
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '40px' }}>
@@ -86,9 +135,34 @@ export default function Feed() {
     );
   }
 
+  // Show profile page if viewing someone's profile
+  if (viewingProfile) {
+    const ProfilePage = require('./ProfilePage').default;
+    return (
+      <>
+        <nav slot="nav" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <button onClick={() => setViewingProfile(null)} className="btn btn-secondary">
+            ← Back to Feed
+          </button>
+          <a href="/admin.html">Admin</a>
+          <button onClick={handleSignOut} className="btn btn-secondary">
+            Sign Out
+          </button>
+        </nav>
+        <ProfilePage profileId={viewingProfile} />
+      </>
+    );
+  }
+
   return (
     <>
       <nav slot="nav" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+        <button 
+          onClick={() => setViewingProfile(user?.id || '')}
+          className="btn btn-secondary"
+        >
+          My Profile
+        </button>
         <a href="/admin.html">Admin</a>
         <button onClick={handleSignOut} className="btn btn-secondary">
           Sign Out
@@ -96,7 +170,34 @@ export default function Feed() {
       </nav>
 
       <div style={{ marginBottom: '30px' }}>
-        <h1 style={{ marginBottom: '20px' }}>Family Feed</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+          <h1 style={{ margin: 0 }}>Family Feed</h1>
+          <button 
+            onClick={handleRefresh} 
+            className="btn btn-secondary"
+            style={{ fontSize: '14px', padding: '6px 12px' }}
+          >
+            ↻ Refresh
+          </button>
+        </div>
+
+        {newPostsCount > 0 && (
+          <div 
+            onClick={handleLoadNewPosts}
+            style={{
+              background: '#4A90E2',
+              color: 'white',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '15px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              fontWeight: 500
+            }}
+          >
+            🔵 {newPostsCount} new {newPostsCount === 1 ? 'post' : 'posts'} - Tap to view
+          </div>
+        )}
         
         {DEV_MODE && (
           <div className="card" style={{ background: '#fff3cd', borderLeft: '4px solid #ffc107', marginBottom: '20px' }}>
@@ -122,7 +223,12 @@ export default function Feed() {
         )}
         
         {posts.map((post: any) => (
-          <PostCard key={post.id} post={post} currentUserId={user?.id || DEV_USER_ID} />
+          <PostCard 
+            key={post.id} 
+            post={post} 
+            currentUserId={user?.id || DEV_USER_ID}
+            onProfileClick={(userId) => setViewingProfile(userId)}
+          />
         ))}
       </div>
     </>
@@ -130,7 +236,7 @@ export default function Feed() {
 }
 
 // PostCard component
-function PostCard({ post, currentUserId }: { post: any; currentUserId: string }) {
+function PostCard({ post, currentUserId, onProfileClick }: { post: any; currentUserId: string; onProfileClick?: (userId: string) => void }) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -172,7 +278,10 @@ function PostCard({ post, currentUserId }: { post: any; currentUserId: string })
   return (
     <div className="card" style={{ marginBottom: '15px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px', gap: '10px' }}>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1, minWidth: 0 }}>
+        <div 
+          style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1, minWidth: 0, cursor: 'pointer' }}
+          onClick={() => onProfileClick?.(post.user_id)}
+        >
           {post.profile?.avatar_url ? (
             <img 
               src={post.profile.avatar_url} 
@@ -271,6 +380,9 @@ function PostCard({ post, currentUserId }: { post: any; currentUserId: string })
           ))}
         </div>
       )}
+
+      <Reactions postId={post.id} currentUserId={currentUserId} />
+      <Comments postId={post.id} currentUserId={currentUserId} />
     </div>
   );
 }
