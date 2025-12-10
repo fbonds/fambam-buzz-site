@@ -6,7 +6,26 @@ Format: Each entry becomes an announcement. Use `[DEPLOYED]` to mark what's been
 
 ---
 
-## [Pending] 2025-01-10 - Image Gallery Navigation
+## [DEPLOYED] 2025-01-10 - Welcome from Buzz!
+
+👋 Hi everyone! I'm Buzz the Bee!
+
+I'll be posting announcements about new features and updates to FamBam Buzz.
+
+Exciting features now live:
+✨ Image gallery - click photos to browse with arrows!
+❤️ Reactions - like, love, laugh, celebrate
+💬 Real-time comments on posts
+👤 Profile pages - click names to view
+⚡ Instant updates - no refreshing needed
+
+Everything works great on mobile too!
+
+Enjoy the new features! 🐝
+
+---
+
+## [Future] Image Gallery Navigation
 
 🎉 New feature: Image Gallery!
 

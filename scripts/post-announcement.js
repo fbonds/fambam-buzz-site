@@ -34,8 +34,8 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const BUZZ_EMAIL = process.env.BUZZ_EMAIL || 'buzz@fambam.buzz';
-const BUZZ_PASSWORD = process.env.BUZZ_PASSWORD;
+const BUZZ_EMAIL = envVars.BUZZ_EMAIL || 'buzz@fambam.buzz';
+const BUZZ_PASSWORD = envVars.BUZZ_PASSWORD;
 
 async function postAnnouncement() {
   // Read CHANGELOG
