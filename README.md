@@ -17,8 +17,13 @@ See `START_HERE.md` for more details or `SUPABASE_SETUP.md` to enable full funct
 ## Features
 
 - **Personal Profiles**: Each family member has their own profile with avatar and bio
-- **Shared Feed**: See all family posts in one chronological feed
+- **Shared Feed**: See all family posts in one chronological feed  
 - **Photo Sharing**: Upload and share photos with automatic compression
+- **Image Gallery**: Click photos to view full size, navigate with arrows
+- **Reactions**: Like, love, laugh, and celebrate posts with emojis
+- **Comments**: Comment on posts with real-time updates
+- **Real-Time**: New posts appear instantly without refreshing
+- **Buzz Announcements**: Automated bot announces new features 🐝
 - **Private & Secure**: Family-only access with email authentication
 - **Storage Smart**: Images stored on Supabase (free 1GB), not your hosting
 - **Auto Cleanup**: Admin tools to manage storage and delete old posts
