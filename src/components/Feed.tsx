@@ -18,6 +18,8 @@ export default function Feed() {
   const [newPosts, setNewPosts] = useState<Post[]>([]);
   const [viewingProfile, setViewingProfile] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     loadData();
@@ -229,15 +231,23 @@ export default function Feed() {
             post={post} 
             currentUserId={user?.id || DEV_USER_ID}
             onProfileClick={(userId) => setViewingProfile(userId)}
-            onImageClick={(url) => setLightboxImage(url)}
+            onImageClick={(url, allImages) => {
+              setLightboxImage(url);
+              setLightboxImages(allImages || [url]);
+              setLightboxIndex(allImages?.indexOf(url) || 0);
+            }}
           />
         ))}
       </div>
 
-      {/* Image Lightbox */}
+      {/* Image Lightbox Gallery */}
       {lightboxImage && (
         <div
-          onClick={() => setLightboxImage(null)}
+          onClick={() => {
+            setLightboxImage(null);
+            setLightboxImages([]);
+            setLightboxIndex(0);
+          }}
           style={{
             position: 'fixed',
             top: 0,
@@ -253,6 +263,37 @@ export default function Feed() {
             padding: '20px'
           }}
         >
+          {/* Previous button */}
+          {lightboxImages.length > 1 && lightboxIndex > 0 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const newIndex = lightboxIndex - 1;
+                setLightboxIndex(newIndex);
+                setLightboxImage(lightboxImages[newIndex]);
+              }}
+              style={{
+                position: 'absolute',
+                left: '20px',
+                background: 'rgba(255, 255, 255, 0.9)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '50px',
+                height: '50px',
+                fontSize: '24px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                color: '#333',
+                zIndex: 1001
+              }}
+            >
+              ‹
+            </button>
+          )}
+
           <img
             src={lightboxImage}
             alt="Full size"
@@ -265,8 +306,45 @@ export default function Feed() {
               boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
             }}
           />
+
+          {/* Next button */}
+          {lightboxImages.length > 1 && lightboxIndex < lightboxImages.length - 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const newIndex = lightboxIndex + 1;
+                setLightboxIndex(newIndex);
+                setLightboxImage(lightboxImages[newIndex]);
+              }}
+              style={{
+                position: 'absolute',
+                right: '20px',
+                background: 'rgba(255, 255, 255, 0.9)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '50px',
+                height: '50px',
+                fontSize: '24px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                color: '#333',
+                zIndex: 1001
+              }}
+            >
+              ›
+            </button>
+          )}
+
+          {/* Close button */}
           <button
-            onClick={() => setLightboxImage(null)}
+            onClick={() => {
+              setLightboxImage(null);
+              setLightboxImages([]);
+              setLightboxIndex(0);
+            }}
             style={{
               position: 'absolute',
               top: '20px',
@@ -282,11 +360,33 @@ export default function Feed() {
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 'bold',
-              color: '#333'
+              color: '#333',
+              zIndex: 1001
             }}
           >
             ×
           </button>
+
+          {/* Image counter */}
+          {lightboxImages.length > 1 && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '30px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(0, 0, 0, 0.7)',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                fontWeight: 500,
+                zIndex: 1001
+              }}
+            >
+              {lightboxIndex + 1} / {lightboxImages.length}
+            </div>
+          )}
         </div>
       )}
     </>
@@ -294,7 +394,7 @@ export default function Feed() {
 }
 
 // PostCard component
-function PostCard({ post, currentUserId, onProfileClick, onImageClick }: { post: any; currentUserId: string; onProfileClick?: (userId: string) => void; onImageClick?: (url: string) => void }) {
+function PostCard({ post, currentUserId, onProfileClick, onImageClick }: { post: any; currentUserId: string; onProfileClick?: (userId: string) => void; onImageClick?: (url: string, allImages?: string[]) => void }) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -427,7 +527,7 @@ function PostCard({ post, currentUserId, onProfileClick, onImageClick }: { post:
               key={i}
               src={url} 
               alt="Post media" 
-              onClick={() => onImageClick?.(url)}
+              onClick={() => onImageClick?.(url, post.media_urls)}
               style={{ 
                 width: '100%',
                 borderRadius: '8px',
